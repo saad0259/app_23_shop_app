@@ -30,6 +30,7 @@ class ProductsGallery extends StatelessWidget {
         title: const Text('Cloud Mart'),
       ),
       body: GridView.builder(
+        padding: EdgeInsets.all(10),
           itemCount: _products.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
