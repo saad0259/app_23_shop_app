@@ -1,7 +1,10 @@
-import 'package:app_23_shop_app/provider/product.dart';
 import 'package:flutter/material.dart';
-import '../screens/product_details.dart';
 import 'package:provider/provider.dart';
+
+import '../screens/product_details.dart';
+
+import '../provider/product.dart';
+import '../provider/cart.dart';
 
 class ProductItem extends StatelessWidget {
   // const ProductItem(
@@ -10,11 +13,13 @@ class ProductItem extends StatelessWidget {
 
   // final String id, title, imageUrl;
 
+
   @override
   Widget build(BuildContext context) {
     final productItem = Provider.of<Product>(context,
         listen:
             false); // listen:true (which is default) rebuilds everything, Use Consumer Method to rebuild specific portion of the widget or refactor the widget that changes.
+    final cartItem = Provider.of<Cart>(context, listen: false);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
@@ -54,7 +59,10 @@ class ProductItem extends StatelessWidget {
               Icons.shopping_cart,
               color: Theme.of(context).accentColor,
             ),
-            onPressed: () {},
+            onPressed: () {
+              cartItem.addItem(productItem.id, productItem.price, productItem.title);
+              print(cartItem.items);
+            },
           ),
         ),
       ),

@@ -38,7 +38,22 @@ class ProductsProvider with ChangeNotifier {
     ),
   ];
 
+  // var _showFavoriteOnly=false;
+  //
+  // void toggleShowFavourite(){
+  //   _showFavoriteOnly=!_showFavoriteOnly;
+  //   notifyListeners();
+  // }
+  List<Product> get favoriteItems{
+    return _items.where((element) => element.isFavorite).toList();
+  }
+
   List<Product> get items {
+    // if(_showFavoriteOnly)
+    //   {
+    //     return _items.where((element) => element.isFavorite).toList();
+    //
+    //   }
     return [
       ..._items
     ]; // returning _items but as a copy instead of reference so main _items don't change
