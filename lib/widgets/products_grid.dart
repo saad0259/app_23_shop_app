@@ -10,7 +10,7 @@ class ProductGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final productData = Provider.of<Products>(context);
+    final productData = Provider.of<ProductsProvider>(context);
     final products= productData.items;
 
 
@@ -24,10 +24,14 @@ class ProductGrid extends StatelessWidget {
           mainAxisSpacing: 20,
         ),
         itemBuilder: (ctx, i) =>
-            ProductItem(
-              id: products[i].id,
-              title: products[i].title,
-              imageUrl: products[i].imageUrl,
+            ChangeNotifierProvider.value(
+              // create: (ctx) => products[i],
+              value: products[i],
+              child: ProductItem(
+                // id: products[i].id,
+                // title: products[i].title,
+                // imageUrl: products[i].imageUrl,
+              ),
             ));
 
   }
