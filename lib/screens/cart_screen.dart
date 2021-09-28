@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/cart_item.dart';
+import '../provider/orders.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -41,7 +42,11 @@ class CartScreen extends StatelessWidget {
                     width: 10,
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Provider.of<Orders>(context, listen: false).orderNow(
+                          cartData.items.values.toList(), cartData.totalAmount);
+                      cartData.clearCart();
+                    },
                     child: Text(
                       'Order Now',
                       style: TextStyle(
@@ -60,7 +65,7 @@ class CartScreen extends StatelessWidget {
               child: ListView.builder(
             itemCount: cartData.itemCount,
             itemBuilder: (ctx, i) => CartItem(
-              productId: cartData.items.keys.toList()[i],
+                productId: cartData.items.keys.toList()[i],
                 id: cartData.items.values.toList()[i].id,
                 title: cartData.items.values.toList()[i].title,
                 price: cartData.items.values.toList()[i].price,

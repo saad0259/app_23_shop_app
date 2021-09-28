@@ -1,4 +1,3 @@
-import 'package:app_23_shop_app/provider/product.dart';
 import 'package:app_23_shop_app/provider/products_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -41,13 +40,13 @@ class ProductDetails extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            Text(
-              '\$ ${product.description}',
-              textAlign: TextAlign.center,
-              softWrap: true, // go to new line
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 20,
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              width: double.infinity,
+              child: Text(
+                '${product.description}',
+                textAlign: TextAlign.center,
+                softWrap: true, // go to new line
               ),
             ),
           ],
