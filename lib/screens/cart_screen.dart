@@ -5,10 +5,28 @@ import 'package:provider/provider.dart';
 import '../widgets/cart_item.dart';
 import '../provider/orders.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({Key? key}) : super(key: key);
 
   static const routeName = '/cart-screen';
+
+  @override
+  _CartScreenState createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    Future(() {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      final snackBar = SnackBar(content: Text('Swipe Left to Delete Items'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

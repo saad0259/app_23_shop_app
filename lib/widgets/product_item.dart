@@ -13,7 +13,6 @@ class ProductItem extends StatelessWidget {
 
   // final String id, title, imageUrl;
 
-
   @override
   Widget build(BuildContext context) {
     final productItem = Provider.of<Product>(context,
@@ -60,8 +59,23 @@ class ProductItem extends StatelessWidget {
               color: Theme.of(context).accentColor,
             ),
             onPressed: () {
-              cartItem.addItem(productItem.id, productItem.price, productItem.title);
-              print(cartItem.items);
+              cartItem.addItem(
+                  productItem.id, productItem.price, productItem.title);
+              // Scaffold.of(context).openDrawer(); //Open the drawer with this method
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Added Item to Cart!'),
+                  // backgroundColor: Theme.of(context).primaryColor,
+                  duration: Duration(seconds: 2),
+                  action: SnackBarAction(
+                    label: 'UNDO',
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      cartItem.removeSingleItem(productItem.id);
+                    },
+                  ),
+                ),
+              );
             },
           ),
         ),

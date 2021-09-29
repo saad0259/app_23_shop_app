@@ -22,17 +22,9 @@ class Orders with ChangeNotifier {
   }
 
   void orderNow(List<CartItem> cartProducts, double total) {
-    print('Helloooo');
-    // orders.insert(
-    //   0,
-    //   OrderItem(
-    //     id: DateTime.now().toString(),
-    //     price: total,
-    //     product: cartProducts,
-    //     dateTime: DateTime.now(),
-    //   ),
-    // );
-    orders.add(
+
+    _orders.insert(
+      0,
       OrderItem(
         id: DateTime.now().toString(),
         price: total,
@@ -40,7 +32,14 @@ class Orders with ChangeNotifier {
         dateTime: DateTime.now(),
       ),
     );
-    print(orders);
+    // _orders.add(
+    //   OrderItem(
+    //     id: DateTime.now().toString(),
+    //     price: total,
+    //     product: cartProducts,
+    //     dateTime: DateTime.now(),
+    //   ),
+    // );
     notifyListeners();
   }
 }
