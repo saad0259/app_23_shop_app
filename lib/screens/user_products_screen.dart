@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../provider/products_provider.dart';
+import 'edit_product_screen.dart';
 
 class UserProductsScreen extends StatelessWidget {
   const UserProductsScreen({Key? key}) : super(key: key);
@@ -16,7 +17,13 @@ class UserProductsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('User Orders'),
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.add))],
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(EditProductScreen.routeName);
+              },
+              icon: Icon(Icons.add))
+        ],
       ),
       drawer: AppDrawer(),
       body: Padding(
@@ -26,6 +33,7 @@ class UserProductsScreen extends StatelessWidget {
           itemBuilder: (_, i) => Column(
             children: [
               UserProductItem(
+                productId: productData.items[i].id,
                 title: productData.items[i].title,
                 imageUrl: productData.items[i].imageUrl,
               ),

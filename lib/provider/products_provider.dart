@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'product.dart';
 
@@ -44,7 +47,7 @@ class ProductsProvider with ChangeNotifier {
   //   _showFavoriteOnly=!_showFavoriteOnly;
   //   notifyListeners();
   // }
-  List<Product> get favoriteItems{
+  List<Product> get favoriteItems {
     return _items.where((element) => element.isFavorite).toList();
   }
 
@@ -59,12 +62,52 @@ class ProductsProvider with ChangeNotifier {
     ]; // returning _items but as a copy instead of reference so main _items don't change
   }
 
-  Product findById(String productId){
+  Product findById(String productId) {
     return _items.firstWhere((element) => element.id == productId);
   }
 
-  void addProduct(value) {
-    // _items.add(value);
+  Future<void> addProduct(Product product) {
+    Uri url = Uri.parse(
+        'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/products.aslam');
+    print('Before request');
+    return http
+        .post(url,
+            body: json.encode({
+              'title': product.title,
+              'description': product.description,
+              'imageUrl': product.imageUrl,
+              'price': product.price,
+              'isFavorite': product.isFavorite,
+            }))
+        .then((response) {
+      print('Hello');
+      // print(json.decode(response.body));
+      final newProduct = Product(
+          id: json.decode(response.body).toString(),
+          title: product.title,
+          description: product.description,
+          imageUrl: product.imageUrl,
+          price: product.price);
+      _items.insert(0, newProduct);
+      notifyListeners();
+    }).catchError((error) {
+      print(error);
+      throw error;
+    });
+  }
+
+  void updateProduct(String id, Product newProduct) {
+    final productIndex = _items.indexWhere((element) => element.id == id);
+    if (productIndex >= 0) {
+      _items[productIndex] = newProduct;
+      notifyListeners();
+    } else {
+      print('Product not found');
+    }
+  }
+
+  void deleteProduct(String prodId) {
+    _items.removeWhere((element) => element.id == prodId);
     notifyListeners();
   }
 }
