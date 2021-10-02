@@ -1,7 +1,8 @@
-import 'package:app_23_shop_app/provider/product.dart';
-import 'package:app_23_shop_app/provider/products_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../provider/product.dart';
+import '../provider/products_provider.dart';
 
 class EditProductScreen extends StatefulWidget {
   const EditProductScreen({Key? key}) : super(key: key);
@@ -91,7 +92,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _imageUrlController.dispose();
   }
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     final _isValid = _form.currentState!.validate();
     _isLoading = true;
     if (!_isValid) {
@@ -104,16 +105,30 @@ class _EditProductScreenState extends State<EditProductScreen> {
       Provider.of<ProductsProvider>(context, listen: false)
           .updateProduct(_editedProduct.id, _editedProduct);
     } else {
-      Provider.of<ProductsProvider>(context, listen: false)
-          .addProduct(_editedProduct)
-          .catchError((error) {
-        showDialog(
+      try {
+        await Provider.of<ProductsProvider>(context, listen: false)
+            .addProduct(_editedProduct);
+      } catch (error) {
+        await showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
                   title: Text('An error occurred'),
-                  content: Text(error.toString()),
+                  content: Text('Could not save Product'),
+                  actions: [
+                    TextButton(
+                      child: Text('Okay'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
                 ));
-      }).then((_) => Navigator.pop(context));
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.of(context).pop();
+      }
     }
   }
 

@@ -1,12 +1,12 @@
-import 'package:app_23_shop_app/provider/cart.dart';
-import 'package:app_23_shop_app/screens/cart_screen.dart';
-import 'package:app_23_shop_app/widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
-import '../widgets/products_grid.dart';
+import './cart_screen.dart';
+import '../provider/cart.dart';
+import '../provider/products_provider.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/badge.dart';
+import '../widgets/products_grid.dart';
 
 enum FilterOption { Favorites, All }
 
@@ -17,6 +17,26 @@ class ProductsGallery extends StatefulWidget {
 
 class _ProductsGalleryState extends State<ProductsGallery> {
   bool _showOnlyFavorites = false;
+  var _isInit = true;
+  var _isLoading = false;
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+      Provider.of<ProductsProvider>(context).fetchAndSetProducts().then((_) {
+        print('Loaded products ');
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    _isInit=false;
+    super.didChangeDependencies();
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +68,8 @@ class _ProductsGalleryState extends State<ProductsGallery> {
             ],
           ),
           Consumer<Cart>(
-            builder: (ctx, cartData, ch) => Badge(
-                child: ch!,
-                value: cartData.itemCount.toString()),
+            builder: (ctx, cartData, ch) =>
+                Badge(child: ch!, value: cartData.itemCount.toString()),
             child: IconButton(
               icon: Icon(Icons.shopping_cart),
               onPressed: () {
@@ -61,7 +80,11 @@ class _ProductsGalleryState extends State<ProductsGallery> {
         ],
       ),
       drawer: AppDrawer(),
-      body: ProductGrid(showOnlyFavorites: _showOnlyFavorites),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductGrid(showOnlyFavorites: _showOnlyFavorites),
     );
   }
 }
