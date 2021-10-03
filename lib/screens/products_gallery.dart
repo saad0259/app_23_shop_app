@@ -20,6 +20,11 @@ class _ProductsGalleryState extends State<ProductsGallery> {
   var _isInit = true;
   var _isLoading = false;
 
+  Future<void> _refreshProducts(context) async {
+    await Provider.of<ProductsProvider>(context, listen: false)
+        .fetchAndSetProducts();
+  }
+
   @override
   void didChangeDependencies() {
     if (_isInit) {
@@ -27,15 +32,13 @@ class _ProductsGalleryState extends State<ProductsGallery> {
         _isLoading = true;
       });
       Provider.of<ProductsProvider>(context).fetchAndSetProducts().then((_) {
-        print('Loaded products ');
         setState(() {
           _isLoading = false;
         });
       });
     }
-    _isInit=false;
+    _isInit = false;
     super.didChangeDependencies();
-
   }
 
   @override
@@ -80,11 +83,14 @@ class _ProductsGalleryState extends State<ProductsGallery> {
         ],
       ),
       drawer: AppDrawer(),
-      body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : ProductGrid(showOnlyFavorites: _showOnlyFavorites),
+      body: RefreshIndicator(
+        onRefresh: () => _refreshProducts(context),
+        child: _isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : ProductGrid(showOnlyFavorites: _showOnlyFavorites),
+      ),
     );
   }
 }

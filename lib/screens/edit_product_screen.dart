@@ -102,7 +102,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _form.currentState!.save();
 
     if (productId != null) {
-      Provider.of<ProductsProvider>(context, listen: false)
+      await Provider.of<ProductsProvider>(context, listen: false)
           .updateProduct(_editedProduct.id, _editedProduct);
     } else {
       try {
@@ -123,13 +123,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     ),
                   ],
                 ));
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.of(context).pop();
-      }
+      } //finally {
+      //   setState(() {
+      //     _isLoading = false;
+      //   });
+      //   Navigator.of(context).pop();
+      // }
     }
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.of(context).pop();
   }
 
   @override
@@ -139,7 +143,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         title: Text('Edit Product'),
         actions: [
           IconButton(
-            onPressed: _saveForm,
+            onPressed: () => _saveForm(),
             icon: Icon(Icons.save),
           ),
         ],

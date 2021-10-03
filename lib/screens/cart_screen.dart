@@ -2,31 +2,25 @@ import 'package:app_23_shop_app/provider/cart.dart' show Cart;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../widgets/cart_item.dart';
-import '../provider/orders.dart';
 
-class CartScreen extends StatefulWidget {
+import '../provider/orders.dart';
+import '../widgets/cart_item.dart';
+
+class CartScreen extends StatelessWidget {
   const CartScreen({Key? key}) : super(key: key);
 
   static const routeName = '/cart-screen';
 
-  @override
-  _CartScreenState createState() => _CartScreenState();
-}
-
-class _CartScreenState extends State<CartScreen> {
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-
-    Future(() {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      final snackBar = SnackBar(content: Text('Swipe Left to Delete Items'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    });
-  }
+  // @override
+  // void initState() { // Show snackBar at page load.
+  //   super.initState();
+  //
+  //   Future(() {
+  //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+  //     final snackBar = SnackBar(content: Text('Swipe Left to Delete Items'));
+  //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -59,19 +53,7 @@ class _CartScreenState extends State<CartScreen> {
                   SizedBox(
                     width: 10,
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Provider.of<Orders>(context, listen: false).orderNow(
-                          cartData.items.values.toList(), cartData.totalAmount);
-                      cartData.clearCart();
-                    },
-                    child: Text(
-                      'Order Now',
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  )
+                  OrderButton(cartData: cartData)
                 ],
               ),
             ),
@@ -91,6 +73,62 @@ class _CartScreenState extends State<CartScreen> {
           ))
         ],
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    Key? key,
+    required this.cartData,
+  }) : super(key: key);
+
+  final Cart cartData;
+
+  @override
+  _OrderButtonState createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    return TextButton(
+      onPressed: (widget.cartData.totalAmount <= 0 || _isLoading)
+          ? null
+          : () async {
+              setState(() {
+                _isLoading = true;
+              });
+              try {
+                await Provider.of<Orders>(context, listen: false).orderNow(
+                    widget.cartData.items.values.toList(),
+                    widget.cartData.totalAmount);
+
+                widget.cartData.clearCart();
+                _isLoading = false;
+
+                scaffoldMessenger.showSnackBar(SnackBar(
+                  duration: Duration(seconds: 1),
+                  content: Text('Ordered Successfully'),
+                ));
+              } catch (error) {
+                scaffoldMessenger.showSnackBar(SnackBar(
+                  duration: Duration(seconds: 1),
+                  content: Text('Ordered Failed'),
+                ));
+              }
+            },
+      child: _isLoading
+          ? CircularProgressIndicator()
+          : Text(
+              'Order Now',
+              style: TextStyle(
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
     );
   }
 }

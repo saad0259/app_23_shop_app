@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../screens/product_details.dart';
-
-import '../provider/product.dart';
 import '../provider/cart.dart';
+import '../provider/product.dart';
+import '../screens/product_details.dart';
 
 class ProductItem extends StatelessWidget {
   // const ProductItem(
@@ -19,6 +18,7 @@ class ProductItem extends StatelessWidget {
         listen:
             false); // listen:true (which is default) rebuilds everything, Use Consumer Method to rebuild specific portion of the widget or refactor the widget that changes.
     final cartItem = Provider.of<Cart>(context, listen: false);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
@@ -42,8 +42,20 @@ class ProductItem extends StatelessWidget {
                 productItem.isFavorite ? Icons.favorite : Icons.favorite_border,
               ),
               color: Theme.of(context).accentColor,
-              onPressed: () {
-                productItem.toggleFavorite(productItem.id);
+              onPressed: () async {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                try {
+                  await productItem.toggleFavorite(productItem.id);
+                  scaffoldMessenger.showSnackBar(SnackBar(
+                    duration: Duration(seconds: 1),
+                    content: Text('Favorite status changed.'),
+                  ));
+                } catch (error) {
+                  scaffoldMessenger.showSnackBar(SnackBar(
+                    duration: Duration(seconds: 1),
+                    content: Text('Could not change favorite status.'),
+                  ));
+                }
               },
             ),
           ),

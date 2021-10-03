@@ -43,6 +43,12 @@ class ProductsProvider with ChangeNotifier {
   final Uri productsUrl = Uri.parse(
       'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/products.json');
 
+  Uri parameterUrl(String id) {
+    final Uri url = Uri.parse(
+        'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/products/$id.json');
+    return url;
+  }
+
   // var _showFavoriteOnly=false;
   //
   // void toggleShowFavourite(){
@@ -72,6 +78,9 @@ class ProductsProvider with ChangeNotifier {
     try {
       final _response = await http.get(productsUrl);
       final _responseData = json.decode(_response.body) as Map<String, dynamic>;
+      if (_responseData == null) {
+        return;
+      }
       final List<Product> loadedProducts = [];
       _responseData.forEach((prodId, prodData) {
         loadedProducts.add(
@@ -85,7 +94,7 @@ class ProductsProvider with ChangeNotifier {
           ),
         );
       });
-      _items=loadedProducts;
+      _items = loadedProducts;
       notifyListeners();
     } catch (error) {
       print('Could Not load products');
@@ -104,7 +113,7 @@ class ProductsProvider with ChangeNotifier {
           }));
 
       final newProduct = Product(
-          id: json.decode(response.body).toString(),
+          id: json.decode(response.body)['name'],
           title: product.title,
           description: product.description,
           imageUrl: product.imageUrl,
@@ -117,18 +126,44 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  void updateProduct(String id, Product newProduct) {
+  Future<void> updateProduct(String id, Product newProduct) async {
     final productIndex = _items.indexWhere((element) => element.id == id);
     if (productIndex >= 0) {
-      _items[productIndex] = newProduct;
-      notifyListeners();
+      final Uri url = parameterUrl(id);
+      try {
+        await http.patch(url,
+            body: json.encode({
+              'title': newProduct.title,
+              'description': newProduct.description,
+              'price': newProduct.price,
+              'imageUrl': newProduct.imageUrl,
+            }));
+        _items[productIndex] = newProduct;
+        notifyListeners();
+      } catch (error) {
+        print('Product Not updated');
+      }
     } else {
       print('Product not found');
     }
   }
 
-  void deleteProduct(String prodId) {
-    _items.removeWhere((element) => element.id == prodId);
+  Future<void> deleteProduct(String prodId) async {
+    final Uri url = parameterUrl(prodId);
+
+    final _existingProductIndex =
+        _items.indexWhere((element) => element.id == prodId);
+    Product? _existingProduct = _items[_existingProductIndex];
+    _items.removeAt(_existingProductIndex);
     notifyListeners();
+    try {
+      await http.delete(url);
+    } catch (error) {
+      _items.insert(_existingProductIndex, _existingProduct);
+      throw error;
+    } finally {
+      _existingProduct = null;
+      notifyListeners();
+    }
   }
 }
