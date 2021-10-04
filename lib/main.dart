@@ -1,3 +1,5 @@
+import 'package:app_23_shop_app/provider/auth.dart';
+import 'package:app_23_shop_app/screens/auth_screen.dart';
 import 'package:app_23_shop_app/screens/cart_screen.dart';
 import 'package:app_23_shop_app/screens/edit_product_screen.dart';
 import 'package:app_23_shop_app/screens/orders_screen.dart';
@@ -31,6 +33,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (ctx) => Orders(),
         ),
+        ChangeNotifierProvider.value(
+          value: Auth(),
+        ),
       ],
       // value: ProductsProvider(),
       child: MaterialApp(
@@ -43,13 +48,13 @@ class MyApp extends StatelessWidget {
         ),
         // home: ProductsGallery(),
         routes: {
-          '/': (ctx) => ProductsGallery(),
+          '/': (ctx) => AuthScreen (),
           ProductDetails.routeName: (ctx) => ProductDetails(),
           CartScreen.routeName: (ctx) => CartScreen(),
           OrdersScreen.routeName: (ctx) => OrdersScreen(),
-          UserProductsScreen.routeName:(ctx) => UserProductsScreen(),
-          EditProductScreen.routeName:(ctx) => EditProductScreen(),
-
+          UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
+          EditProductScreen.routeName: (ctx) => EditProductScreen(),
+          AuthScreen.routeName: (ctx) => AuthScreen(),
         },
       ),
     );
