@@ -19,21 +19,21 @@ class Product with ChangeNotifier {
       required this.price,
       this.isFavorite = false});
 
-  Uri parameterUrl(String id) {
+  Uri parameterUrl(String id, String token, String userId) {
     final Uri url = Uri.parse(
-        'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/products/$id.json');
+        'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/userFavorites/$userId/$id.json?auth=$token');
     return url;
   }
 
-  Future<void> toggleFavorite(String id) async {
-    final url = parameterUrl(id);
+  Future<void> toggleFavorite(String token, String userId) async {
+    final url = parameterUrl(id, token, userId);
     isFavorite = !isFavorite;
     notifyListeners();
     try {
-      await http.patch(url,
-          body: jsonEncode({
-            'isFavorite': isFavorite,
-          }));
+      await http.put(url,
+          body: jsonEncode(
+            isFavorite,
+          ));
     } catch (error) {
       isFavorite = !isFavorite;
       throw error;

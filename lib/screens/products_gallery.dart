@@ -11,6 +11,8 @@ import '../widgets/products_grid.dart';
 enum FilterOption { Favorites, All }
 
 class ProductsGallery extends StatefulWidget {
+
+  static const routeName='/product-gallery';
   @override
   _ProductsGalleryState createState() => _ProductsGalleryState();
 }

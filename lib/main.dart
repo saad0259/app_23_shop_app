@@ -3,6 +3,7 @@ import 'package:app_23_shop_app/screens/auth_screen.dart';
 import 'package:app_23_shop_app/screens/cart_screen.dart';
 import 'package:app_23_shop_app/screens/edit_product_screen.dart';
 import 'package:app_23_shop_app/screens/orders_screen.dart';
+import 'package:app_23_shop_app/screens/splash_screen.dart';
 import 'package:app_23_shop_app/screens/user_products_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,38 +25,56 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (ctx) => ProductsProvider(),
+        ChangeNotifierProvider.value(
+          value: Auth(),
+        ),
+        ChangeNotifierProxyProvider<Auth, ProductsProvider>(
+          update: (ctx, auth, previousProducts) => ProductsProvider(
+              auth.token == null ? '' : auth.token!,
+              auth.userId ?? '',
+              previousProducts == null ? [] : previousProducts.items),
+          create: (_) => ProductsProvider('', '', []),
         ),
         ChangeNotifierProvider(
           create: (ctx) => Cart(),
         ),
-        ChangeNotifierProvider(
-          create: (ctx) => Orders(),
-        ),
-        ChangeNotifierProvider.value(
-          value: Auth(),
+        ChangeNotifierProxyProvider<Auth, Orders>(
+          update: (ctx, auth, previousOrders) => Orders(
+              previousOrders?.orders == null ? [] : previousOrders!.orders,
+              auth.token == null ? '' : auth.token!,
+              auth.userId ?? ''),
+          create: (ctx) => Orders([], '', ''),
         ),
       ],
       // value: ProductsProvider(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.purple,
-          accentColor: Colors.deepOrange,
-          fontFamily: 'Lato',
+      child: Consumer<Auth>(
+        builder: (ctx, authData, _) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            primarySwatch: Colors.purple,
+            accentColor: Colors.deepOrange,
+            fontFamily: 'Lato',
+          ),
+          home: authData.isAuth
+              ? ProductsGallery()
+              : FutureBuilder(
+                  future: authData.tryAutoLogin(),
+                  builder: (ctx, authResultSnapshot) =>
+                      authResultSnapshot.connectionState ==
+                              ConnectionState.waiting
+                          ? SplashScreen()
+                          : AuthScreen()),
+          routes: {
+            ProductDetails.routeName: (ctx) => ProductDetails(),
+            ProductsGallery.routeName: (ctx) => ProductsGallery(),
+            CartScreen.routeName: (ctx) => CartScreen(),
+            OrdersScreen.routeName: (ctx) => OrdersScreen(),
+            UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
+            EditProductScreen.routeName: (ctx) => EditProductScreen(),
+            AuthScreen.routeName: (ctx) => AuthScreen(),
+          },
         ),
-        // home: ProductsGallery(),
-        routes: {
-          '/': (ctx) => AuthScreen (),
-          ProductDetails.routeName: (ctx) => ProductDetails(),
-          CartScreen.routeName: (ctx) => CartScreen(),
-          OrdersScreen.routeName: (ctx) => OrdersScreen(),
-          UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
-          EditProductScreen.routeName: (ctx) => EditProductScreen(),
-          AuthScreen.routeName: (ctx) => AuthScreen(),
-        },
       ),
     );
   }

@@ -20,23 +20,33 @@ class OrderItem {
 
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
+  final String authToken;
+  final String userId;
 
-  final Uri ordersUrl = Uri.parse(
-      'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/orders.json');
+  Orders(this._orders, this.authToken, this.userId);
+
+
 
   List<OrderItem> get orders {
     return [..._orders];
   }
 
   Future<void> fetchAndSetOrders() async {
+
     final Uri ordersUrl = Uri.parse(
-        'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/orders.json');
+        'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/orders/$userId/.json?auth=$authToken');
     final response = await http.get(ordersUrl);
     final List<OrderItem> _loadedOrders = [];
-    final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response == null) {
+      return;
+    }
+
+    var responseData = jsonDecode(response.body);
+
     if (responseData == null) {
       return;
     }
+    responseData= responseData  as Map<String, dynamic>;
 
     responseData.forEach((orderId, orderData) {
       _loadedOrders.add(OrderItem(
@@ -55,7 +65,7 @@ class Orders with ChangeNotifier {
             .toList(),
       ));
     });
-    _orders = _loadedOrders.reversed.toList(  );
+    _orders = _loadedOrders.reversed.toList();
     notifyListeners();
   }
 
@@ -64,6 +74,8 @@ class Orders with ChangeNotifier {
       return;
     }
     final dateTime = DateTime.now();
+    final Uri ordersUrl = Uri.parse(
+        'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/orders/$userId.json?auth=$authToken');
 
     try {
       final response = await http.post(ordersUrl,

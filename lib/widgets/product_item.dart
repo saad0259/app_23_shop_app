@@ -1,3 +1,4 @@
+import 'package:app_23_shop_app/provider/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +20,7 @@ class ProductItem extends StatelessWidget {
             false); // listen:true (which is default) rebuilds everything, Use Consumer Method to rebuild specific portion of the widget or refactor the widget that changes.
     final cartItem = Provider.of<Cart>(context, listen: false);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final authData = Provider.of<Auth>(context, listen: false);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
@@ -45,7 +47,8 @@ class ProductItem extends StatelessWidget {
               onPressed: () async {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 try {
-                  await productItem.toggleFavorite(productItem.id);
+                  await productItem.toggleFavorite(
+                      authData.token.toString(), authData.userId!);
                   scaffoldMessenger.showSnackBar(SnackBar(
                     duration: Duration(seconds: 1),
                     content: Text('Favorite status changed.'),

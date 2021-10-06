@@ -30,7 +30,7 @@ class OrdersScreen extends StatelessWidget {
               );
             }
             if (snapshot.error != null) {
-              return Center(child: Text('Error'));
+              return Center(child: Text('Error ${snapshot.error}'));
             } else {
               return Consumer<Orders>(
                 builder: (ctx, orderData, child) => ListView.builder(

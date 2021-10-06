@@ -40,12 +40,17 @@ class ProductsProvider with ChangeNotifier {
     //       'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     // ),
   ];
-  final Uri productsUrl = Uri.parse(
-      'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/products.json');
+  final String authToken, userId;
+
+  ProductsProvider(
+    this.authToken,
+    this.userId,
+    this._items,
+  );
 
   Uri parameterUrl(String id) {
     final Uri url = Uri.parse(
-        'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/products/$id.json');
+        'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
     return url;
   }
 
@@ -74,15 +79,35 @@ class ProductsProvider with ChangeNotifier {
     return _items.firstWhere((element) => element.id == productId);
   }
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts([bool filterByUserId = false]) async {
+    final filterString =
+        filterByUserId ? 'orderBy="userId"&equalTo="$userId"' : '';
+
+    final Uri productsUrl = Uri.parse(
+        'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/products.json?auth=$authToken&$filterString');
+    final Uri favoriteStatusUrl = Uri.parse(
+        'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authToken');
     try {
       final _response = await http.get(productsUrl);
       final _responseData = json.decode(_response.body) as Map<String, dynamic>;
       if (_responseData == null) {
         return;
       }
+
+      final favoriteStatus = await http.get(favoriteStatusUrl);
+      final favoriteData = jsonDecode(favoriteStatus.body);
+
       final List<Product> loadedProducts = [];
       _responseData.forEach((prodId, prodData) {
+        var _favStatus;
+        if (favoriteData == null) {
+          _favStatus = false;
+        } else {
+          _favStatus = favoriteData[prodId] == null
+              ? false
+              : favoriteData[prodId] ?? false;
+        }
+
         loadedProducts.add(
           Product(
             id: prodId,
@@ -90,7 +115,9 @@ class ProductsProvider with ChangeNotifier {
             description: prodData['description'],
             imageUrl: prodData['imageUrl'],
             price: prodData['price'],
-            isFavorite: prodData['isFavorite'],
+            isFavorite: _favStatus,
+
+            // isFavorite: prodData['isFavorite'],
           ),
         );
       });
@@ -102,6 +129,8 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
+    final Uri productsUrl = Uri.parse(
+        'https://cloudmart-ecommerce-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       final response = await http.post(productsUrl,
           body: json.encode({
@@ -109,7 +138,8 @@ class ProductsProvider with ChangeNotifier {
             'description': product.description,
             'imageUrl': product.imageUrl,
             'price': product.price,
-            'isFavorite': product.isFavorite,
+            'userId': userId,
+            // 'isFavorite': product.isFavorite,
           }));
 
       final newProduct = Product(

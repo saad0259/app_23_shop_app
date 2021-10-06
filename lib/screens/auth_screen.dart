@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:app_23_shop_app/models/http_exception.dart';
 import 'package:app_23_shop_app/provider/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -49,7 +50,7 @@ class AuthScreen extends StatelessWidget {
                       // ..translate(-10.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: Colors.deepOrange.shade900,
+                        color: Theme.of(context).primaryColor,
                         boxShadow: [
                           BoxShadow(
                             blurRadius: 8,
@@ -58,16 +59,19 @@ class AuthScreen extends StatelessWidget {
                           )
                         ],
                       ),
-                      child: Text(
-                        'MyShop',
-                        style: TextStyle(
-                          color: Theme.of(context)
-                              .accentTextTheme
-                              .headline6!
-                              .color,
-                          fontSize: 50,
-                          fontFamily: 'Anton',
-                          fontWeight: FontWeight.normal,
+                      child: FittedBox(
+                        child: Text(
+                          'MyShop',
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .accentTextTheme
+                                .headline6!
+                                .color,
+                            fontSize: 50,
+                            fontFamily: 'Anton',
+                            fontWeight: FontWeight.normal,
+                            
+                          ),
                         ),
                       ),
                     ),
@@ -101,7 +105,23 @@ class _AuthCardState extends State<AuthCard> {
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
-  Future<void> _submit() async{
+  void _showErrorDialog(String errorMessage) {
+    showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+              title: Text('An error occurred'),
+              content: Text(errorMessage),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('OK'))
+              ],
+            ));
+  }
+
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) {
       // Invalid!
       return;
@@ -110,11 +130,39 @@ class _AuthCardState extends State<AuthCard> {
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.Login) {
-      // Log user in
-    } else {
-      await Provider.of<Auth>(context, listen: false)
-          .signup(_authData['email'], _authData['password']);
+    try {
+      if (_authMode == AuthMode.Login) {
+        // Log user in
+        await Provider.of<Auth>(context, listen: false)
+            .login(_authData['email'], _authData['password']);
+      } else {
+        // Signup User
+        await Provider.of<Auth>(context, listen: false)
+            .signup(_authData['email'], _authData['password']);
+      }
+    } on HttpException catch (error) {
+      var errorMessage = 'Authentication Failed';
+      if (error.toString().contains('EMAIL_EXISTS')) {
+        errorMessage = 'This email is already in use.';
+      } else if (error.toString().contains('INVALID_EMAIL')) {
+        errorMessage = 'Email is invalid.';
+      } else if (error.toString().contains('WEAK_PASSWORD')) {
+        errorMessage = 'This password is too weak';
+      } else if (error.toString().contains('EMAIL_NOT_FOUND')) {
+        errorMessage = 'Could not find user with this email';
+      } else if (error.toString().contains('INVALID_PASSWORD')) {
+        errorMessage = 'Invalid Password';
+      }
+      setState(() {
+        _isLoading = false;
+      });
+      _showErrorDialog(errorMessage);
+    } catch (error) {
+      const errorMessage = 'Failed to authenticate. Please try again.';
+      setState(() {
+        _isLoading = false;
+      });
+      _showErrorDialog(errorMessage);
     }
     setState(() {
       _isLoading = false;
@@ -217,7 +265,7 @@ class _AuthCardState extends State<AuthCard> {
                   child: Text(
                     '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD',
                     style: TextStyle(
-                      color: Theme.of(context).primaryColor,
+                      color: Theme.of(context).accentColor,
                     ),
                   ),
                   onPressed: _switchAuthMode,
