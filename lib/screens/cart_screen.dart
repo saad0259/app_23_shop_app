@@ -1,4 +1,4 @@
-import 'package:app_23_shop_app/provider/cart.dart' show Cart;
+import '../provider/cart.dart' show Cart;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

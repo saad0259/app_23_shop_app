@@ -1,10 +1,10 @@
-import 'package:app_23_shop_app/provider/auth.dart';
-import 'package:app_23_shop_app/screens/auth_screen.dart';
-import 'package:app_23_shop_app/screens/cart_screen.dart';
-import 'package:app_23_shop_app/screens/edit_product_screen.dart';
-import 'package:app_23_shop_app/screens/orders_screen.dart';
-import 'package:app_23_shop_app/screens/splash_screen.dart';
-import 'package:app_23_shop_app/screens/user_products_screen.dart';
+import '../provider/auth.dart';
+import '../screens/auth_screen.dart';
+import '../screens/cart_screen.dart';
+import '../screens/edit_product_screen.dart';
+import '../screens/orders_screen.dart';
+import '../screens/splash_screen.dart';
+import '../screens/user_products_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
