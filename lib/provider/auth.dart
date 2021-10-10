@@ -78,31 +78,22 @@ class Auth with ChangeNotifier {
   }
 
   Future<bool> tryAutoLogin() async {
-    print('Started AutoLogin');
     final _prefs = await SharedPreferences.getInstance();
     if (!_prefs.containsKey('userData')) {
-      print('User Data was Null');
       return false;
     }
-    print('User data not null');
-    final _userData =
-        jsonDecode(_prefs.getString('userData')!);
+    final _userData = jsonDecode(_prefs.getString('userData')!);
     // as Map<String, Object>
-
-    print('User data is $_userData');
 
     final expiryDate = DateTime.parse(_userData['expiryDate'] as String);
     if (expiryDate.isBefore(DateTime.now())) {
-      print('token expired');
       return false;
     }
-    print('Autologin success');
     _token = _userData['token'] as String;
     _userId = _userData['userId'] as String;
     _expiryDate = expiryDate;
     notifyListeners();
     _autoLogout();
-    print('before return');
     return true;
   }
 
@@ -117,7 +108,6 @@ class Auth with ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('userData');
-    print('User Data removed');
   }
 
   void _autoLogout() {

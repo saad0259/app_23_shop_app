@@ -18,49 +18,59 @@ class _OrderItemState extends State<OrderItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(10),
-      child: Column(
-        children: [
-          ListTile(
-            title: Text('\$ ${widget.orderItem.price.toStringAsFixed(2)}'),
-            subtitle: Text(DateFormat('dd/MM/yyyy hh:mm')
-                .format(widget.orderItem.dateTime)),
-            trailing: IconButton(
-              icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more),
-              onPressed: () {
-                setState(() {
-                  _expanded = !_expanded;
-                });
-              },
+    return AnimatedContainer(
+      height: _expanded
+          ? min(widget.orderItem.product.length * 20.0 + 130, 200)
+          : 95,
+      duration: Duration(milliseconds: 300),
+      child: Card(
+        margin: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            ListTile(
+              title: Text('\$ ${widget.orderItem.price.toStringAsFixed(2)}'),
+              subtitle: Text(DateFormat('dd/MM/yyyy hh:mm')
+                  .format(widget.orderItem.dateTime)),
+              trailing: IconButton(
+                icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more),
+                onPressed: () {
+                  setState(() {
+                    _expanded = !_expanded;
+                  });
+                },
+              ),
             ),
-          ),
-          if (_expanded)
-            Container(
+            // if (_expanded)
+            AnimatedContainer(
+              duration: Duration(milliseconds: 300),
               padding: EdgeInsets.symmetric(horizontal: 20),
-              height: min(widget.orderItem.product.length * 20.0 + 60, 120),
+              height: _expanded
+                  ? min(widget.orderItem.product.length * 20.0 + 40, 100)
+                  : 0,
               child: ListView.builder(
                   itemCount: widget.orderItem.product.length,
-                  itemBuilder: (ctx, i) =>
-                      Row(
+                  itemBuilder: (ctx, i) => Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            widget.orderItem.product[i].title, style: TextStyle(
+                            widget.orderItem.product[i].title,
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-
-                          ),),
-                          Text('${widget.orderItem.product[i]
-                              .quantity}x  \$${widget.orderItem.product[i]
-                              .price.toStringAsFixed(2)} ', style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey,
-                          ),),
+                            ),
+                          ),
+                          Text(
+                            '${widget.orderItem.product[i].quantity}x  \$${widget.orderItem.product[i].price.toStringAsFixed(2)} ',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
                         ],
                       )),
             )
-        ],
+          ],
+        ),
       ),
     );
   }

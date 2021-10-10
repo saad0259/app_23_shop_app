@@ -123,9 +123,7 @@ class ProductsProvider with ChangeNotifier {
       });
       _items = loadedProducts;
       notifyListeners();
-    } catch (error) {
-      print('Could Not load products');
-    }
+    } catch (error) {}
   }
 
   Future<void> addProduct(Product product) async {
@@ -151,7 +149,6 @@ class ProductsProvider with ChangeNotifier {
       _items.insert(0, newProduct);
       notifyListeners();
     } catch (error) {
-      print(error);
       throw error;
     }
   }
@@ -170,12 +167,8 @@ class ProductsProvider with ChangeNotifier {
             }));
         _items[productIndex] = newProduct;
         notifyListeners();
-      } catch (error) {
-        print('Product Not updated');
-      }
-    } else {
-      print('Product not found');
-    }
+      } catch (error) {}
+    } else {}
   }
 
   Future<void> deleteProduct(String prodId) async {

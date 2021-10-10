@@ -1,10 +1,12 @@
-import '../provider/auth.dart';
-import '../screens/auth_screen.dart';
-import '../screens/cart_screen.dart';
-import '../screens/edit_product_screen.dart';
-import '../screens/orders_screen.dart';
-import '../screens/splash_screen.dart';
-import '../screens/user_products_screen.dart';
+import './helpers/custom_route.dart';
+
+import './provider/auth.dart';
+import './screens/auth_screen.dart';
+import './screens/cart_screen.dart';
+import './screens/edit_product_screen.dart';
+import './screens/orders_screen.dart';
+import './screens/splash_screen.dart';
+import './screens/user_products_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -55,6 +57,11 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.purple,
             accentColor: Colors.deepOrange,
             fontFamily: 'Lato',
+            pageTransitionsTheme: PageTransitionsTheme(builders: {
+              TargetPlatform.android: CustomPageTransitionBuilder(),
+              TargetPlatform.iOS: CustomPageTransitionBuilder(),
+              TargetPlatform.windows: CustomPageTransitionBuilder(),
+            }),
           ),
           home: authData.isAuth
               ? ProductsGallery()
