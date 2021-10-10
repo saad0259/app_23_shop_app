@@ -20,7 +20,7 @@ class _OrderItemState extends State<OrderItem> {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       height: _expanded
-          ? min(widget.orderItem.product.length * 20.0 + 130, 200)
+          ? min(widget.orderItem.product.length * 20.0 + 150, 230)
           : 95,
       duration: Duration(milliseconds: 300),
       child: Card(
